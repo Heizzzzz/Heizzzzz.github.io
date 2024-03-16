@@ -1,1 +1,233 @@
-Alo
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learning Contrastive Emotional Nuances in Speech Synthesis</title>
+<!-- Bootstrap CSS -->
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+<body>
+<div class="container">
+  <h2 class="mt-4">Learning Contrastive Emotional Nuances in Speech Synthesis</h2>
+
+  <form id="mosForm">
+    <div>
+        <ul>
+            <li>FT: Standard fine-tuning.</li>
+            <li>EC: Add emotion classifier loss in 2nd stage.</li>
+            <li>CEA-S: Add supervised contrastive loss in 2nd stage.</li>
+            <li>CEA-U: Add unsupervised contrastive loss in 2nd stage.</li>
+          </ul> 
+    </div>
+    <div id="formContent">
+      <!-- JavaScript will populate this div with the input fields -->
+    </div>
+  </form>
+</div>
+
+<!-- Bootstrap JS and jQuery (required for Bootstrap) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const emotions = ["Angry", "Happy", "Neutral", "Sad", "Surprise", "Other", "Frustrated", "Excited"];
+  let baselines = ["no_const", "emo", "const", "self"];
+  const helpers = ["reference", "spk"];
+  const moses = ["emotion", "speaker"];
+  const mosDict = {
+    "speaker": "Speaker similarity:",
+    "emotion": "Emotion similarity:",
+  }
+  const baseDict = {
+    "no_const": "FT",
+    "emo": "EC",
+    "const": "CEA-S",
+    "self": "CEA-U",
+  }
+  const transcriptions = [
+    "Stretching before and after exercise can help prevent injury and improve flexibility",
+    "Cooking dinner together can be a fun way to bond with loved ones",
+    "This is the kind of quality that we get with our algorithm",
+    "The taste of homemade apple pie reminded me of childhood memories",
+    "Sunshine poured through the window, warming the cozy room in the morning",
+    "A gentle breeze blew through the open window, cooling the room",
+    "The sound of birds chirping in the morning is so soothing",
+    "Reading a book before bed helps me unwind and fall asleep faster"
+  ]
+  const formContent = document.getElementById("formContent");
+
+  let x = 1;
+  emotions.forEach(emotion => {
+    for (let i = 1; i <= 1; i++) {
+      const div = document.createElement("div");
+      div.classList.add("mt-4");
+
+      
+      const header = document.createElement("h3");
+      //header.textContent = `Sample #${x}`
+      header.textContent = `${emotion} - Reference ${i}`;
+      header.textContent = `${emotion}`;
+      x++;
+
+      div.appendChild(header);
+      
+
+      const table = document.createElement("table");
+      table.classList.add("table", "table-bordered");
+
+      const thead = document.createElement("thead");
+      const theadRow = document.createElement("tr");
+      thead.appendChild(theadRow);
+
+      // baselines = shuffleArray(baselines);
+      /*
+      baselines.forEach(baseline => {
+        const th = document.createElement("th");
+        th.textContent = baseline;
+        theadRow.appendChild(th);
+      });
+      */
+      
+      const th = document.createElement("th");
+      th.setAttribute("colspan", "4");
+      th.setAttribute("class", "align-middle text-center");
+      
+      helpers.forEach(helper => {
+          const container = document.createElement("div");
+          container.setAttribute("class", "d-inline-flex align-items-center mx-2");
+      
+          // Create helper text element
+          const helperText = document.createTextNode(helper == "spk" ? "Speaker" : "Reference");
+      
+          // Create audio element
+          const audio = document.createElement("audio");
+          audio.setAttribute("class", "mx-2");
+          audio.controls = true;
+          const source = document.createElement("source");
+          source.src = `./Audio/${emotion}_${i}_${helper}.wav`;
+          source.type = "audio/wav";
+          audio.appendChild(source);
+      
+          // Append helper text and audio to container
+          container.appendChild(helperText);
+          container.appendChild(audio);
+      
+          // Append container to th element
+          th.appendChild(container);
+      });
+      
+      
+      
+      
+      
+      theadRow.appendChild(th);
+
+      const tbody = document.createElement("tbody");
+      const tbodyRow = document.createElement("tr");
+
+      // transcription
+      const trans = document.createElement("tr");
+      const td = document.createElement("td");
+      td.setAttribute("colspan", "4");
+      td.setAttribute("class", "align-middle text-center")
+
+      const divTrans = document.createElement("div");
+      divTrans.textContent = transcriptions[x-2];
+      td.appendChild(divTrans)
+
+      trans.appendChild(td)
+      tbody.appendChild(trans);
+
+      // baseline label
+      const baselineLabel = document.createElement("tr");
+
+      baselines.forEach(baseline => {
+        const td = document.createElement("td");
+        const divLabel = document.createElement("div");
+        td.setAttribute("class", "align-middle text-center font-weight-bold")
+        divLabel.textContent = baseDict[baseline];
+        td.appendChild(divLabel)
+
+        baselineLabel.appendChild(td);
+      });
+
+      tbody.appendChild(baselineLabel);
+
+      baselines.forEach(baseline => {
+        const td = document.createElement("td");
+        const audio = document.createElement("audio");
+        audio.controls = true;
+        const source = document.createElement("source");
+        source.src = `./Audio/${emotion}_${i}_${baseline}.wav`;
+        source.type = "audio/wav";
+        audio.appendChild(source);
+        td.appendChild(audio);
+
+        /*
+        moses.forEach(mos => {
+            const label = document.createElement("label");
+            label.setAttribute("for", `${mos}_${emotion}_${i}_${baseline}`);
+            
+            label.textContent = mosDict[mos];
+
+            const select = document.createElement("select");
+            select.id = `${mos}_${emotion}_${i}_${baseline}`;
+            select.name = `${mos}_${emotion}_${i}_${baseline}`;
+            select.classList.add("form-control");
+
+            const defaultOption = document.createElement("option");
+            defaultOption.value = "";
+            defaultOption.textContent = "None";
+            select.appendChild(defaultOption);
+
+            for (let j = 1; j <= 5; j++) {
+              const option = document.createElement("option");
+              option.value = j;
+              option.textContent = j;
+              select.appendChild(option);
+            }
+            td.appendChild(label);
+            td.appendChild(select);
+        })
+
+        */
+        tbodyRow.appendChild(td);
+      });
+
+      tbody.appendChild(tbodyRow);
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      div.appendChild(table);
+      formContent.appendChild(div);
+    }
+  });
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+        }
+        return array;
+    }
+    document.getElementById('mosForm').addEventListener('submit', function(event) {
+        // Loop through each select element
+        const selects = document.querySelectorAll('select');
+        for (let i = 0; i < selects.length; i++) {
+            const select = selects[i];
+            // Check if any select element has the default "None" option selected
+            if (select.value === "") {
+                // Prevent form submission and show an error message
+                event.preventDefault();
+                alert('Please fill out all fields before submitting.');
+                return; // Stop further validation
+            }
+        }
+        // All selects have been filled out, proceed with form submission
+    });
+});
+</script>
+</body>
+</html>
