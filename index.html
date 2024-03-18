@@ -14,12 +14,16 @@
 
   <form id="mosForm">
     <div>
+      <h4>Abstract</h4>
+      <p>
+        Prosody is a crucial speech feature in emotional text-to-speech (TTS), as different emotions have distinct prosodic characteristics. Existing works in emotional TTS have primarily utilized emotion labels in the dataset by applying auxiliary emotion classification loss to enhance emotional nuances in the model. However, this approach may only partially leverage the potential of emotion labels. Accordingly, this paper proposes a supervised contrastive approach to effectively utilize emotion labels and enable the model to distinguish prosody from different emotions. Furthermore, this work also explores the unsupervised contrastive learning where the emotion labels are missing in emotional TTS. In particular, the proposed TTS architecture assures a cross-speaker emotion in transfer learning, allowing for an accurate speech generation even without specific prosody from a target speaker. The experimental results on emotional datasets demonstrate the effectiveness of the proposed method.
+      </p>
         <ul>
             <li>FT: Standard fine-tuning.</li>
             <li>EC: Add emotion classifier loss in 2nd stage.</li>
             <li>CEA-S: Add supervised contrastive loss in 2nd stage.</li>
             <li>CEA-U: Add unsupervised contrastive loss in 2nd stage.</li>
-          </ul> 
+        </ul>
     </div>
     <div id="formContent">
       <!-- JavaScript will populate this div with the input fields -->
