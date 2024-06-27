@@ -3,20 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Learning Contrastive Emotional Nuances in Speech Synthesis</title>
+<title>Learning Contrastive Emotional Nuances For Cross-Speaker Speech Synthesis</title>
 <!-- Bootstrap CSS -->
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
 </head>
 <body>
 <div class="container">
-  <h2 class="mt-4">Learning Contrastive Emotional Nuances in Speech Synthesis</h2>
+  <h2 class="mt-4">Learning Contrastive Emotional Nuances For Cross-Speaker Speech Synthesis</h2>
 
   <form id="mosForm">
     <div>
       <h4>Abstract</h4>
       <p>
-        Prosody is a crucial speech feature in emotional text-to-speech (TTS), as different emotions have distinct prosody characteristics. Existing works in emotional TTS primarily utilize emotion labels in datasets by minimizing an auxiliary emotion classification loss to elaborate emotional nuances in the synthesized speech. However, this approach may not fully utilize the potential of emotion labels. This paper proposes a contrastive approach to effectively utilize emotion labels, enabling the model to discriminate prosody information among different emotions. Particularly, this work explores the unsupervised contrastive learning for scenarios where emotion labels are missing. The proposed TTS architecture also supports cross-speaker emotion transfer learning, ensuring accurate speech generation even without specific prosody from a target speaker. Experimental results on emotional datasets demonstrate the effectiveness of the proposed method, showing the improved emotional nuance and prosody accuracy in emotional TTS.
+        Prosody is a crucial speech feature in emotional text-to-speech (TTS), as different emotions have distinct prosody characteristics. Existing works in emotional TTS primarily utilize emotion labels in datasets by minimizing an auxiliary emotion classification loss to elaborate emotional nuances in speech synthesis. However, this approach may not fully utilize the potential of emotion labels. This paper proposes a contrastive approach to effectively utilize emotion labels, enabling the model to discriminate prosody information among different emotions. Particularly, this work explores the unsupervised contrastive learning for emotional TTS without emotion labels. The proposed TTS architecture further supports the cross-speaker emotion transfer from a reference speech, ensuring an accurate speech generation even without specific prosody information from a target speaker. Experimental results demonstrate the effectiveness of the proposed method to improve the emotional nuance and the prosody information in emotional TTS.
       </p>
         <ul>
             <li>FT: Standard fine-tuning with no additional loss.</li>
