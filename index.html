@@ -3,26 +3,52 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Learning Contrastive Emotional Nuances for Cross-Speaker Speech Synthesis</title>
+<title>
+    <!-- Learning Contrastive Emotional Nuances in Speech Synthesis -->
+    Emotion-Rich Cross-Speaker TTS through Prosody Enhancement
+</title>
 <!-- Bootstrap CSS -->
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    th {
+        vertical-align: middle;
+    }
+    .container {
+      padding:10px;
+      margin-right: 0px;
+      margin-left: 0px;
+      max-width: 100%;
+    }
+    #mosForm {
+      max-width: 100%;
+    }
+    table {
+      max-width:100%
+    }
+</style>
 
 </head>
 <body>
 <div class="container">
-  <h3 class="mt-4">Learning Contrastive Emotional Nuances for Cross-Speaker Speech Synthesis</h3>
+  <h2 class="mt-4">
+    <!-- Learning Contrastive Emotional Nuances in Speech Synthesis -->
+    Emotion-Rich Cross-Speaker TTS through Prosody Enhancement
+  </h2>
 
   <form id="mosForm">
     <div>
       <h4>Abstract</h4>
       <p>
-        Prosody is a crucial speech feature in emotional text-to-speech (TTS), as different emotions have distinct prosody characteristics. Existing works in emotional TTS primarily utilize emotion labels in datasets by minimizing an auxiliary emotion classification loss to elaborate emotional nuances in speech synthesis. However, this approach may not fully utilize the potential of emotion labels. This paper proposes a contrastive approach to effectively utilize emotion labels, enabling the model to discriminate prosody information among different emotions. Particularly, this work explores the unsupervised contrastive learning for emotional TTS without emotion labels. The proposed TTS architecture further supports the cross-speaker emotion transfer from a reference speech, ensuring an accurate speech generation even without specific prosody information from a target speaker. Experimental results demonstrate the effectiveness of the proposed method to improve the emotional nuance and the prosody information in emotional TTS.
+        <!-- Prosody is a crucial speech feature in emotional text-to-speech (TTS), as different emotions have distinct prosodic characteristics. Existing works in emotional TTS have primarily utilized emotion labels in the dataset by applying auxiliary emotion classification loss to enhance emotional nuances in the model. However, this approach may only partially leverage the potential of emotion labels. Accordingly, this paper proposes a supervised contrastive approach to effectively utilize emotion labels and enable the model to distinguish prosody from different emotions. Furthermore, this work also explores the unsupervised contrastive learning where the emotion labels are missing in emotional TTS. In particular, the proposed TTS architecture assures a cross-speaker emotion in transfer learning, allowing for an accurate speech generation even without specific prosody from a target speaker. The experimental results on emotional datasets demonstrate the effectiveness of the proposed method. -->
+        Cross-speaker prosody transfer is a common method for developing emotional text-to-speech (TTS) systems when only the emotionally diverse speech data from a single speaker are available but limited. Current approaches to prosody embedding learning for such a task are suboptimal. The primary issue is the contamination of non-prosodic features during the prosody transfer learning process. This paper proposes an approach to disentangle non-prosodic features to ensure that the prosody embedding exclusively captures prosodic characteristics from the reference speech. Additionally, contrastive learning is merged to further discriminate different emotional features. Experimental results demonstrate the merit of the proposed method in capturing and transferring the emotional nuances across speakers for emotional TTS.
       </p>
         <ul>
-            <li>FT: Standard fine-tuning with no additional loss.</li>
-            <li>EC: Add emotion classifier loss to replicate previous works' approach.</li>
-            <li>CEA-S: Add the proposed supervised contrastive loss.</li>
-            <li>CEA-U: Add the proposed unsupervised contrastive loss.</li>
+            <li>FT: Standard fine-tuning.</li>
+            <li>EC: Add emotion classifier loss to mimic previous works' approach</li>
+            <li>MI: Add Mutual Information loss in 2nd stage.</li>
+            <li>CEA-S: Add supervised contrastive loss in 2nd stage.</li>
+            <li>CEA-U: Add unsupervised contrastive loss in 2nd stage.</li>
+            <li>CEA-S + MI: Add unsupervised contrastive loss and Mutual Information in 2nd stage.</li>
         </ul>
     </div>
     <div id="formContent">
@@ -38,199 +64,242 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-  const emotions = ["Angry", "Happy", "Neutral", "Sad", "Surprise", "Other", "Frustrated", "Excited"];
-  let baselines = ["no_const", "emo", "const", "self"];
-  const helpers = ["reference", "spk"];
+  const emotionDict = {
+    //"en": ["Angry", "Happy", "Neutral", "Sad", "Surprise", "Other", "Frustrated", "Excited"],
+    "en": ["Angry", "Excited", "Frustrated", "Happy", "Neutral", "Other", "Sad", "Surprise"],
+    "zh": ["Angry", "Happy", "Neutral", "Sad", "Surprise"]
+  };
+  const languageDict = {
+    "en": "English",
+    "zh": "Chinese"
+  }
+  const baseDict = {
+    "no_const": "FT",
+    "emo": "EC",
+    "mi": "MI",
+    "const": "CEA-S",
+    "self": "CEA-U",
+    "const_mi": "CEA-S + MI",
+  }
+  const languages = ["en", "zh"]
+  const iemo = ["Other", "Frustrated", "Excited"]
+  let baselines = ["no_const", "emo", "mi", "const", "self", "const_mi"];
+  const helpers = ["reference", "speaker"];
   const moses = ["emotion", "speaker"];
   const mosDict = {
     "speaker": "Speaker similarity:",
     "emotion": "Emotion similarity:",
   }
-  const baseDict = {
-    "no_const": "FT",
-    "emo": "EC",
-    "const": "CEA-S",
-    "self": "CEA-U",
+  const transDict = {
+    "en": [
+      // Angry
+      //"I enjoy taking walks in the park to unwind and appreciate the beauty of the natural world",
+      "I enjoy taking walks in the park to unwind and appreciate the beauty of the natural world",
+      // Excited
+      "Spending time outdoors can boost your mood and increase feelings of well being",
+      // Frustrated
+      "Spending time outdoors can boost your mood and increase feelings of well being",
+      // Happy
+      "Spending time outdoors can boost your mood and increase feelings of well being",
+      // "The sound of birds chirping in the morning is so soothing",
+      // Neutral
+      // "Cooking dinner together can be a fun way to bond with loved ones",
+      "Stretching before and after exercise can help prevent injury and improve flexibility",
+      // Other
+      "I am excited to see what the future holds for us",
+      // Sad
+      // "Dogs are loyal companions who bring joy and happiness into our lives",
+      "The sound of birds chirping in the morning is so soothing",
+      // Surprise
+      "The sound of birds chirping in the morning is so soothing",
+      // "The sound of birds chirping in the morning is so soothing"
+    ],
+    "zh": ["聽說你要去香港看你叔叔",
+      "資料全都不見了氣死我了",
+      "我的希望是工作到倒下的那一天",
+      "做一些好吃的促進寶寶的食慾",
+      "每次叫我都不給紅包不開心"
+    ]
   }
-  const transcriptions = [
-    "Stretching before and after exercise can help prevent injury and improve flexibility",
-    "Cooking dinner together can be a fun way to bond with loved ones",
-    "This is the kind of quality that we get with our algorithm",
-    "The taste of homemade apple pie reminded me of childhood memories",
-    "Sunshine poured through the window, warming the cozy room in the morning",
-    "A gentle breeze blew through the open window, cooling the room",
-    "The sound of birds chirping in the morning is so soothing",
-    "Reading a book before bed helps me unwind and fall asleep faster"
-  ]
   const formContent = document.getElementById("formContent");
 
-  let x = 1;
-  emotions.forEach(emotion => {
-    for (let i = 1; i <= 1; i++) {
-      const div = document.createElement("div");
-      div.classList.add("mt-4");
-
-      
-      const header = document.createElement("h4");
-      //header.textContent = `Sample #${x}`
-      header.textContent = `${emotion} - Reference ${i}`;
-      header.textContent = `${emotion}`;
-      x++;
-
-      div.appendChild(header);
-      
-
-      const table = document.createElement("table");
-      table.classList.add("table", "table-bordered");
-
-      const thead = document.createElement("thead");
-      const theadRow = document.createElement("tr");
-      thead.appendChild(theadRow);
-
-      // baselines = shuffleArray(baselines);
-      /*
-      baselines.forEach(baseline => {
+  let idx = 0;
+  languages.forEach(language => {
+     // A = 0, H = 0, N = 1, S = 1, Su = 0
+    let x = 1;
+    const banner = document.createElement("h1");
+    // banner.textContent = languageDict[language];
+    banner.textContent = idx == 0 ? "English" : "Mandarin";
+    formContent.appendChild(banner);
+    idx+=1;
+    emotionDict[language].forEach(emotion => {
+      for (let i = 1; i <= 2; i++) {
+        if (language == "en") {
+          if (i == 1 && emotion == "Angry") continue;
+          if (i == 2 && emotion == "Happy") continue;
+          if (i == 1 && emotion == "Neutral") continue;
+          if (i == 1 && emotion == "Sad") continue;
+          if (i == 2 && emotion == "Surprise") continue;
+        }
+        if (i == 1 && iemo.includes(emotion)) {
+          continue;
+        }
+        if (i == 2 && language == "zh") continue;
+        // if (i == 2 && (language == "zh" || !iemo.includes(emotion))) continue;
+        const div = document.createElement("div");
+        div.classList.add("mt-4");
+  
+        
+        const header = document.createElement("h3");
+        // header.textContent = `Sample #${x}`
+        // header.textContent = `${emotion} - Reference ${i}`;
+        header.textContent = `${emotion}`
+        x++;
+  
+        div.appendChild(header);
+        
+  
+        const table = document.createElement("table");
+        table.classList.add("table", "table-bordered");
+  
+        const thead = document.createElement("thead");
+        const theadRow = document.createElement("tr");
+        thead.appendChild(theadRow);
+  
+        // baselines = shuffleArray(baselines);
+        /*
+        baselines.forEach(baseline => {
+          const th = document.createElement("th");
+          th.textContent = baseline;
+          theadRow.appendChild(th);
+        });
+        */
+        
         const th = document.createElement("th");
-        th.textContent = baseline;
-        theadRow.appendChild(th);
-      });
-      */
-      
-      const th = document.createElement("th");
-      th.setAttribute("colspan", "4");
-      th.setAttribute("class", "align-middle text-center");
-      
-      helpers.forEach(helper => {
+        th.setAttribute("colspan", "6");
+        th.setAttribute("class", "align-middle text-center")
+        helpers.forEach(helper => {
           const container = document.createElement("div");
           container.setAttribute("class", "d-inline-flex align-items-center mx-2");
       
-          // Create helper text element
-          const helperText = document.createTextNode(helper == "spk" ? "Speaker" : "Reference");
+          const helperText = document.createTextNode(helper == "speaker" ? "Speaker" : "Reference");
       
-          // Create audio element
           const audio = document.createElement("audio");
           audio.setAttribute("class", "mx-2");
           audio.controls = true;
           const source = document.createElement("source");
-          source.src = `./Audio/${emotion}_${i}_${helper}.wav`;
+          source.src = `./Audio/${language}/${emotion}_${i}_${helper}.wav`;
           source.type = "audio/wav";
           audio.appendChild(source);
       
-          // Append helper text and audio to container
           container.appendChild(helperText);
           container.appendChild(audio);
       
-          // Append container to th element
           th.appendChild(container);
       });
-      
-      
-      
-      
-      
-      theadRow.appendChild(th);
 
-      const tbody = document.createElement("tbody");
-      const tbodyRow = document.createElement("tr");
-
-      // transcription
-      const trans = document.createElement("tr");
-      const td = document.createElement("td");
-      td.setAttribute("colspan", "4");
-      td.setAttribute("class", "align-middle text-center")
-
-      const divTrans = document.createElement("div");
-      divTrans.textContent = transcriptions[x-2];
-      td.appendChild(divTrans)
-
-      trans.appendChild(td)
-      tbody.appendChild(trans);
-
-      // baseline label
-      const baselineLabel = document.createElement("tr");
-
-      baselines.forEach(baseline => {
+        theadRow.appendChild(th);
+  
+        const tbody = document.createElement("tbody");
+        const tbodyRow = document.createElement("tr");
+  
+        // trans
+        const trans = document.createElement("tr");
         const td = document.createElement("td");
-        const divLabel = document.createElement("div");
-        td.setAttribute("class", "align-middle text-center font-weight-bold")
-        divLabel.textContent = baseDict[baseline];
-        td.appendChild(divLabel)
+        td.setAttribute("colspan", "6");
+        td.setAttribute("class", "align-middle text-center")
+  
+        const divTrans = document.createElement("div");
+        divTrans.textContent = transDict[language][x-2];
+        td.appendChild(divTrans)
+  
+        trans.appendChild(td)
+        tbody.appendChild(trans);
 
-        baselineLabel.appendChild(td);
-      });
-
-      tbody.appendChild(baselineLabel);
-
-      baselines.forEach(baseline => {
-        const td = document.createElement("td");
-        const audio = document.createElement("audio");
-        audio.controls = true;
-        const source = document.createElement("source");
-        source.src = `./Audio/${emotion}_${i}_${baseline}.wav`;
-        source.type = "audio/wav";
-        audio.appendChild(source);
-        td.appendChild(audio);
-
-        /*
-        moses.forEach(mos => {
-            const label = document.createElement("label");
-            label.setAttribute("for", `${mos}_${emotion}_${i}_${baseline}`);
-            
-            label.textContent = mosDict[mos];
-
-            const select = document.createElement("select");
-            select.id = `${mos}_${emotion}_${i}_${baseline}`;
-            select.name = `${mos}_${emotion}_${i}_${baseline}`;
-            select.classList.add("form-control");
-
-            const defaultOption = document.createElement("option");
-            defaultOption.value = "";
-            defaultOption.textContent = "None";
-            select.appendChild(defaultOption);
-
-            for (let j = 1; j <= 5; j++) {
-              const option = document.createElement("option");
-              option.value = j;
-              option.textContent = j;
-              select.appendChild(option);
-            }
-            td.appendChild(label);
-            td.appendChild(select);
-        })
-
-        */
-        tbodyRow.appendChild(td);
-      });
-
-      tbody.appendChild(tbodyRow);
-      table.appendChild(thead);
-      table.appendChild(tbody);
-      div.appendChild(table);
-      formContent.appendChild(div);
-    }
-  });
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]]; // Swap elements
-        }
-        return array;
-    }
-    document.getElementById('mosForm').addEventListener('submit', function(event) {
-        // Loop through each select element
-        const selects = document.querySelectorAll('select');
-        for (let i = 0; i < selects.length; i++) {
-            const select = selects[i];
-            // Check if any select element has the default "None" option selected
-            if (select.value === "") {
-                // Prevent form submission and show an error message
-                event.preventDefault();
-                alert('Please fill out all fields before submitting.');
-                return; // Stop further validation
-            }
-        }
-        // All selects have been filled out, proceed with form submission
+        const baselineLabel = document.createElement("tr");
+        baselines.forEach(baseline => {
+          const td = document.createElement("td");
+          const divLabel = document.createElement("div");
+          td.setAttribute("class", "align-middle text-center font-weight-bold")
+          divLabel.textContent = baseDict[baseline];
+          td.appendChild(divLabel)
+  
+          baselineLabel.appendChild(td);
+        });
+  
+        tbody.appendChild(baselineLabel);
+        baselines.forEach(baseline => {
+          const td = document.createElement("td");
+          const audio = document.createElement("audio");
+          audio.controls = true;
+          const source = document.createElement("source");
+          source.src = `./Audio/${language}/${emotion}_${i}_${baseline}.wav`;
+          source.type = "audio/wav";
+          audio.appendChild(source);
+          td.appendChild(audio);
+  
+          /*
+          moses.forEach(mos => {
+              const label = document.createElement("label");
+              label.setAttribute("for", `${mos}_${emotion}_${i}_${language}_${baseline}`);
+              
+              label.textContent = mosDict[mos];
+  
+              const select = document.createElement("select");
+              select.id = `${mos}_${emotion}_${i}_${language}_${baseline}`;
+              select.name = `${mos}_${emotion}_${i}_${language}_${baseline}`;
+              select.classList.add("form-control");
+  
+              const defaultOption = document.createElement("option");
+              defaultOption.value = "";
+              defaultOption.textContent = "None";
+              select.appendChild(defaultOption);
+  
+              for (let j = 1; j <= 5; j++) {
+                const option = document.createElement("option");
+                option.value = j;
+                option.textContent = j;
+                select.appendChild(option);
+              }
+              td.appendChild(label);
+              td.appendChild(select);
+          })
+          */
+  
+          tbodyRow.appendChild(td);
+        });
+  
+        tbody.appendChild(tbodyRow);
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        div.appendChild(table);
+        formContent.appendChild(div);
+      }
     });
+  })
+
+  function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+      }
+      return array;
+  }
+  document.getElementById('mosForm').addEventListener('submit', function(event) {
+      // Loop through each select element
+      const selects = document.querySelectorAll('select');
+      for (let i = 0; i < selects.length; i++) {
+          const select = selects[i];
+          // Check if any select element has the default "None" option selected
+          if (select.value === "") {
+              // Prevent form submission and show an error message
+              event.preventDefault();
+              alert('Please fill out all fields before submitting.');
+              return; // Stop further validation
+          }
+      }
+      // All selects have been filled out, proceed with form submission
+  });
 });
 </script>
 </body>
